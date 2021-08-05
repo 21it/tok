@@ -87,6 +87,10 @@ enum Roles {
     AnimationFileID,
     AnimationThumbnail,
     AnimationCaption,
+
+    // location messages
+    PlaceLocation,
+    VenueLocation,
 };
 
 MessagesStore::MessagesStore(Client* parent) : c(parent), d(new Private)
@@ -736,6 +740,18 @@ QVariant MessagesStore::data(const QVariant& key, int role)
         return imageToURL(it->animation_->thumbnail_->file_);
     }
 
+    case Roles::PlaceLocation: {
+        auto it = static_cast<TDApi::messageLocation*>(d->messageData[mID]->content_.get());
+
+        return QPointF(it->location_->longitude_, it->location_->latitude_);
+    }
+
+    case Roles::VenueLocation: {
+        auto it = static_cast<TDApi::messageVenue*>(d->messageData[mID]->content_.get());
+
+        return QPointF(it->venue_->location_->longitude_, it->venue_->location_->latitude_);
+    }
+
     }
 
     Q_UNREACHABLE();
@@ -869,6 +885,9 @@ QHash<int, QByteArray> MessagesStore::roleNames()
     roles[Roles::WebPageTitle] = "webPageTitle";
     roles[Roles::WebPageText] = "webPageText";
     roles[Roles::HasInstantView] = "hasInstantView";
+
+    roles[Roles::PlaceLocation] = "placeLocation";
+    roles[Roles::VenueLocation] = "venueLocation";
 
     return roles;
 }
